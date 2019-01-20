@@ -646,7 +646,7 @@ class StreamLexer : public Lexer {
   int lineno_;
 };
 
-std::unique_ptr<Lexer> CreateDefaultLexer(std::istream& is) {
+inline std::unique_ptr<Lexer> CreateDefaultLexer(std::istream& is) {
   return std::unique_ptr<Lexer>(new Evaluator(new StreamLexer(is)));
 }
 
