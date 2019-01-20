@@ -19,13 +19,13 @@ Notes on Praat and TextGrid file format:
 
 ## Examples
 
-Now, there are 3 examples to read from stdin and write to stdout.
+Now, there are only 3 examples to read from stdin and write to stdout.
 
-I will write haw to use TextGrid, Tier, IntervalTier, PointTier, Interval, Point objects.
+I will write how to use TextGrid, Tier, IntervalTier, PointTier, Interval, Point objects.
 
 ### Read TextGrid file from std::cin and Write to std::cout with operators
 
-```
+```C++
 void ReadAndWriteViaStdio() {
   textgrid::TextGrid text_grid;
   try {
@@ -39,7 +39,7 @@ void ReadAndWriteViaStdio() {
 
 ### Read TextGrid file from std::cin and Write to std::cout in 1 line
 
-```
+```C++
 void ReadAndWriteViaStdioInOneLine() {
   try {
     textgrid::Parser(std::cin).Parse().Accept(textgrid::Writer(std::cout));
@@ -51,7 +51,7 @@ void ReadAndWriteViaStdioInOneLine() {
 
 ### Read TextGrid file from std::cin and Write to std::cout step by step
 
-```
+```C++
 int ReadAndWriteStepByStep(std::istream& in,
                            std::ostream& out,
                            std::ostream& err,
@@ -78,21 +78,21 @@ See also in the examples/textgrid_print.cpp.
 
 ## Build and Test
 
-### Build examples
+### Build example commands in the examples directory
 
-```
+```Shell
 $ make
 ```
 
-### Test the style of codes
+### Test the style of codes by cpplint
 
-```
+```Shell
 $ make check-style
 ```
 
 ### Build and run tests
 
-```
+```Shell
 $ make check
 ```
 
