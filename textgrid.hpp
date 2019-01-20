@@ -983,7 +983,7 @@ class Writer : public TextGridVisitor {
   size_t interval_index_;
   size_t point_index_;
 };
-p
+
 inline std::istream& operator>>(std::istream& is, TextGrid& text_grid) {
   text_grid = Parser(is).Parse();
   return is;
