@@ -5,9 +5,7 @@
 
 #include "./cmdline.h"
 
-int ReadAndWriteStepByStep(std::istream& in,
-                           std::ostream& out,
-                           std::ostream& err,
+int ReadAndWriteStepByStep(std::istream& in, std::ostream& out, std::ostream& err,
                            bool in_short = false) {
   try {
     textgrid::Parser parser(in);
@@ -27,7 +25,7 @@ int ReadAndWriteStepByStep(std::istream& in,
 }
 
 void DefineCommandLineArguments(cmdline::parser& parser) {
-  parser.add("short", '\0', "Output in short short format or not.");
+  parser.add("short", '\0', "Output in short format or not.");
 }
 
 int main(int argc, char* argv[]) {

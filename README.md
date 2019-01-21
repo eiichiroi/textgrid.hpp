@@ -90,6 +90,18 @@ $ make
 $ make check-style
 ```
 
+or
+
+``` Shell
+$ make check-style-by-cpplint
+```
+
+### Fix the style of codes by clang-format
+
+``` Shell
+$ make check-style-by-clang-format
+```
+
 ### Build and run tests
 
 ```Shell

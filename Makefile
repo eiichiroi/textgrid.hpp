@@ -60,12 +60,18 @@ tests/textgrid_test: tests/textgrid_test.cpp
 check-tests: $(TEST_TARGETS)
 	for test in $(TEST_TARGETS); do $$test; done
 
-check-style: $(SOURCES) $(TEST_SOURCES)
+check-style: check-style-by-cpplint
+
+check-style-by-cpplint: $(SOURCES) $(TEST_SOURCES)
 	./cpplint.py $(SOURCES) $(TEST_SOURCES)
+
+check-style-by-clang-format: $(SOURCES) $(TEST_SOURCES)
+	clang-format -i $(SOURCES) $(TEST_SOURCES)
 
 clean:
 	$(RM) $(TARGETS)
 	$(RM) $(GTEST_OBJECTS) $(GTEST_TARGETS)
 	$(RM) $(TEST_TARGETS)
 
-.PHONY:	build examples install uninstall  check gtest check-tests check-style clean
+.PHONY: build examples install uninstall clean \
+        check gtest check-tests check-style check-style-by-cpplint check-style-by-clang-format

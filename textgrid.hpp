@@ -40,21 +40,15 @@ class Exception : public std::runtime_error {
  public:
   Exception(const std::string& message, int lineno)
       : std::runtime_error(""),
-        message_(message), lineno_(lineno),
-        what_(CreateWhat(message, lineno)) {
-  }
+        message_(message),
+        lineno_(lineno),
+        what_(CreateWhat(message, lineno)) {}
   ~Exception() noexcept override = default;
 
-  const char* what() const noexcept override {
-    return what_.c_str();
-  }
+  const char* what() const noexcept override { return what_.c_str(); }
 
-  std::string GetMessage() const {
-    return message_;
-  }
-  int GetLineNumber() const noexcept {
-    return lineno_;
-  }
+  std::string GetMessage() const { return message_; }
+  int GetLineNumber() const noexcept { return lineno_; }
 
  private:
   std::string message_;
@@ -64,17 +58,13 @@ class Exception : public std::runtime_error {
 
 class LexicalError : public Exception {
  public:
-  LexicalError(const std::string& message, int lineno)
-      : Exception(message, lineno) {
-  }
+  LexicalError(const std::string& message, int lineno) : Exception(message, lineno) {}
   ~LexicalError() noexcept override = default;
 };
 
 class SyntaxError : public Exception {
  public:
-  SyntaxError(const std::string& message, int lineno)
-      : Exception(message, lineno) {
-  }
+  SyntaxError(const std::string& message, int lineno) : Exception(message, lineno) {}
   ~SyntaxError() noexcept override = default;
 };
 
@@ -99,9 +89,7 @@ typedef float Number;
 
 struct Point {
   Point() = default;
-  explicit Point(Number time, const std::string& text = "")
-      : time(time), text(text) {
-  }
+  explicit Point(Number time, const std::string& text = "") : time(time), text(text) {}
 
   Number time;
   std::string text;
@@ -110,8 +98,7 @@ struct Point {
 struct Interval {
   Interval() = default;
   Interval(Number min_time, Number max_time, const std::string& text = "")
-      : min_time(min_time), max_time(max_time), text(text) {
-  }
+      : min_time(min_time), max_time(max_time), text(text) {}
 
   Number min_time;
   Number max_time;
@@ -121,22 +108,13 @@ struct Interval {
 class Tier {
  public:
   Tier(const std::string& name, Number min_time, Number max_time)
-      : name_(name), min_time_(min_time), max_time_(max_time) {
-  }
+      : name_(name), min_time_(min_time), max_time_(max_time) {}
   virtual ~Tier() noexcept = default;
 
-  const std::string& GetName() const & {
-    return name_;
-  }
-  std::string GetName() && {
-    return name_;
-  }
-  Number GetMinTime() const noexcept {
-    return min_time_;
-  }
-  Number GetMaxTime() const noexcept {
-    return max_time_;
-  }
+  const std::string& GetName() const& { return name_; }
+  std::string GetName() && { return name_; }
+  Number GetMinTime() const noexcept { return min_time_; }
+  Number GetMaxTime() const noexcept { return max_time_; }
 
   virtual size_t GetNumberOfAnnotations() const noexcept = 0;
 
@@ -152,8 +130,7 @@ class Tier {
 class PointTier : public Tier {
  public:
   PointTier(const std::string& name, Number min_time, Number max_time)
-      : Tier(name, min_time, max_time), points_() {
-  }
+      : Tier(name, min_time, max_time), points_() {}
   PointTier(const std::string& name, Number min_time, Number max_time,
             size_t number_of_points_to_reserve)
       : Tier(name, min_time, max_time), points_() {
@@ -161,39 +138,21 @@ class PointTier : public Tier {
   }
   ~PointTier() noexcept override = default;
 
-  void AppendPoint(const Point& point) {
-    points_.push_back(point);
-  }
-  void AppendPoint(Point&& point) {
-    points_.push_back(point);
-  }
+  void AppendPoint(const Point& point) { points_.push_back(point); }
+  void AppendPoint(Point&& point) { points_.push_back(point); }
 
-  size_t GetNumberOfPoints() const noexcept {
-    return points_.size();
-  }
-  size_t GetNumberOfAnnotations() const noexcept override {
-    return GetNumberOfPoints();
-  }
-  const Point& GetPoint(size_t index) const & {
-    return points_[index];
-  }
-  Point GetPoint(size_t index) && {
-    return std::move(points_[index]);
-  }
-  const std::vector<Point>& GetAllPoints() const & {
-    return points_;
-  }
-  std::vector<Point> GetAllPoints() && {
-    return std::move(points_);
-  }
+  size_t GetNumberOfPoints() const noexcept { return points_.size(); }
+  size_t GetNumberOfAnnotations() const noexcept override { return GetNumberOfPoints(); }
+  const Point& GetPoint(size_t index) const& { return points_[index]; }
+  Point GetPoint(size_t index) && { return std::move(points_[index]); }
+  const std::vector<Point>& GetAllPoints() const& { return points_; }
+  std::vector<Point> GetAllPoints() && { return std::move(points_); }
 
-  void Accept(TextGridVisitor& visitor) const override {
-    AcceptImpl(visitor);
-  }
-  void Accept(TextGridVisitor&& visitor) const override {
-    AcceptImpl(visitor);
-  }
-  template<typename Visitor>
+  void Accept(TextGridVisitor& visitor) const override { AcceptImpl(visitor); }
+  void Accept(TextGridVisitor&& visitor) const override { AcceptImpl(visitor); }
+
+ private:
+  template <typename Visitor>
   void AcceptImpl(Visitor&& visitor) const {
     visitor.Visit(*this);
     for (const auto& point : GetAllPoints()) {
@@ -219,39 +178,21 @@ class IntervalTier : public Tier {
   }
   ~IntervalTier() noexcept override = default;
 
-  void AppendInterval(const Interval& interval) {
-    intervals_.push_back(interval);
-  }
-  void AppendInterval(Interval&& interval) {
-    intervals_.push_back(interval);
-  }
+  void AppendInterval(const Interval& interval) { intervals_.push_back(interval); }
+  void AppendInterval(Interval&& interval) { intervals_.push_back(interval); }
 
-  size_t GetNumberOfIntervals() const noexcept {
-    return intervals_.size();
-  }
-  size_t GetNumberOfAnnotations() const noexcept override {
-    return GetNumberOfIntervals();
-  }
-  const Interval& GetInterval(size_t index) const & {
-    return intervals_[index];
-  }
-  Interval GetInterval(size_t index) && {
-    return std::move(intervals_[index]);
-  }
-  const std::vector<Interval>& GetAllIntervals() const & {
-    return intervals_;
-  }
-  std::vector<Interval> GetAllIntervals() && {
-    return intervals_;
-  }
+  size_t GetNumberOfIntervals() const noexcept { return intervals_.size(); }
+  size_t GetNumberOfAnnotations() const noexcept override { return GetNumberOfIntervals(); }
+  const Interval& GetInterval(size_t index) const& { return intervals_[index]; }
+  Interval GetInterval(size_t index) && { return std::move(intervals_[index]); }
+  const std::vector<Interval>& GetAllIntervals() const& { return intervals_; }
+  std::vector<Interval> GetAllIntervals() && { return intervals_; }
 
-  void Accept(TextGridVisitor& visitor) const override {
-    AcceptImpl(visitor);
-  }
-  void Accept(TextGridVisitor&& visitor) const override {
-    AcceptImpl(visitor);
-  }
-  template<typename Visitor>
+  void Accept(TextGridVisitor& visitor) const override { AcceptImpl(visitor); }
+  void Accept(TextGridVisitor&& visitor) const override { AcceptImpl(visitor); }
+
+ private:
+  template <typename Visitor>
   void AcceptImpl(Visitor&& visitor) const {
     visitor.Visit(*this);
     for (const auto& interval : GetAllIntervals()) {
@@ -265,39 +206,25 @@ class IntervalTier : public Tier {
 
 class TextGrid {
  public:
-  TextGrid() : min_time_(0), max_time_(0), tiers_() {
-  }
+  TextGrid() : min_time_(0), max_time_(0), tiers_() {}
 
-  TextGrid(Number min_time, Number max_time,
-           size_t number_of_tiers_to_reserve = 0u)
+  TextGrid(Number min_time, Number max_time, size_t number_of_tiers_to_reserve = 0u)
       : min_time_(min_time), max_time_(max_time), tiers_() {
     tiers_.reserve(number_of_tiers_to_reserve);
   }
 
-  void AppendTier(const std::shared_ptr<Tier>& tier) {
-    tiers_.push_back(tier);
-  }
-  void AppendTier(std::shared_ptr<Tier>&& tier) {
-    tiers_.push_back(tier);
-  }
-  template<typename TierType>
+  void AppendTier(const std::shared_ptr<Tier>& tier) { tiers_.push_back(tier); }
+  void AppendTier(std::shared_ptr<Tier>&& tier) { tiers_.push_back(tier); }
+  template <typename TierType>
   void AppendTier(const std::string& name = "") {
     AppendTier(std::make_shared<TierType>(name, GetMinTime(), GetMaxTime()));
   }
 
-  Number GetMinTime() const noexcept {
-    return min_time_;
-  }
-  Number GetMaxTime() const noexcept {
-    return max_time_;
-  }
-  size_t GetNumberOfTiers() const noexcept {
-    return tiers_.size();
-  }
-  std::shared_ptr<Tier> GetTier(size_t index) const {
-    return tiers_[index];
-  }
-  template<typename TierType>
+  Number GetMinTime() const noexcept { return min_time_; }
+  Number GetMaxTime() const noexcept { return max_time_; }
+  size_t GetNumberOfTiers() const noexcept { return tiers_.size(); }
+  std::shared_ptr<Tier> GetTier(size_t index) const { return tiers_[index]; }
+  template <typename TierType>
   std::shared_ptr<TierType> GetTierAs(size_t index) const {
     return std::dynamic_pointer_cast<TierType>(GetTier(index));
   }
@@ -309,24 +236,18 @@ class TextGrid {
     }
     return nullptr;
   }
-  template<typename TierType>
+  template <typename TierType>
   std::shared_ptr<TierType> GetTierAs(const std::string& name) const {
     return std::dynamic_pointer_cast<TierType>(GetTier(name));
   }
-  const std::vector<std::shared_ptr<Tier>>& GetAllTiers() const & {
-    return tiers_;
-  }
-  std::vector<std::shared_ptr<Tier>> GetAllTiers() && {
-    return std::move(tiers_);
-  }
+  const std::vector<std::shared_ptr<Tier>>& GetAllTiers() const& { return tiers_; }
+  std::vector<std::shared_ptr<Tier>> GetAllTiers() && { return std::move(tiers_); }
 
-  void Accept(TextGridVisitor& visitor) const {
-    AcceptImpl(visitor);
-  }
-  void Accept(TextGridVisitor&& visitor) const {
-    AcceptImpl(visitor);
-  }
-  template<typename Visitor>
+  void Accept(TextGridVisitor& visitor) const { AcceptImpl(visitor); }
+  void Accept(TextGridVisitor&& visitor) const { AcceptImpl(visitor); }
+
+ private:
+  template <typename Visitor>
   void AcceptImpl(Visitor&& visitor) const {
     visitor.Visit(*this);
     for (const auto& tier : GetAllTiers()) {
@@ -364,33 +285,21 @@ inline std::string ToString(TokenType type) {
 }
 
 struct Token {
-  explicit Token(TokenType type, const std::string& value = "")
-      : type(type), value(value) {
-  }
+  explicit Token(TokenType type, const std::string& value = "") : type(type), value(value) {}
 
   TokenType type;
   std::string value;
 };
 
-inline bool IsEofToken(const Token& token) {
-  return token.type == TokenType::END_OF_FILE;
-}
+inline bool IsEofToken(const Token& token) { return token.type == TokenType::END_OF_FILE; }
 
-inline bool IsNumberToken(const Token& token) {
-  return token.type == TokenType::NUMBER_LITERAL;
-}
+inline bool IsNumberToken(const Token& token) { return token.type == TokenType::NUMBER_LITERAL; }
 
-inline bool IsTextToken(const Token& token) {
-  return token.type == TokenType::TEXT_LITERAL;
-}
+inline bool IsTextToken(const Token& token) { return token.type == TokenType::TEXT_LITERAL; }
 
-inline bool IsFlagToken(const Token& token) {
-  return token.type == TokenType::FLAG_LITERAL;
-}
+inline bool IsFlagToken(const Token& token) { return token.type == TokenType::FLAG_LITERAL; }
 
-inline bool IsCommentToken(const Token& token) {
-  return token.type == TokenType::COMMENT;
-}
+inline bool IsCommentToken(const Token& token) { return token.type == TokenType::COMMENT; }
 
 inline std::string EscapeText(const std::string& str) {
   std::string escaped_str;
@@ -409,8 +318,8 @@ inline std::string EscapeText(const std::string& str) {
 
 inline std::string UnescapeText(const std::string& str) {
   std::string unescaped_str;
-  for (size_t i = 1; i+1 < str.size(); ++i) {
-    if (str[i] == '"' && str[i+1] == '"') {
+  for (size_t i = 1; i + 1 < str.size(); ++i) {
+    if (str[i] == '"' && str[i + 1] == '"') {
       unescaped_str += str[i++];
     } else {
       unescaped_str += str[i];
@@ -419,15 +328,13 @@ inline std::string UnescapeText(const std::string& str) {
   return unescaped_str;
 }
 
-inline std::string EscapeFlag(const std::string& str) {
-  return "<" + str + ">";
-}
+inline std::string EscapeFlag(const std::string& str) { return "<" + str + ">"; }
 
 inline std::string UnescapeFlag(const std::string& str) {
   if (str.size() < 2) {
     return "";
   } else {
-    return str.substr(1u, str.size()-2);
+    return str.substr(1u, str.size() - 2);
   }
 }
 
@@ -485,19 +392,15 @@ class Evaluator : public Lexer {
   }
 
  public:
-  explicit Evaluator(Lexer* lexer) : lexer_(lexer) {
-  }
-  explicit Evaluator(std::unique_ptr<Lexer> lexer) : lexer_(std::move(lexer)) {
-  }
+  explicit Evaluator(Lexer* lexer) : lexer_(lexer) {}
+  explicit Evaluator(std::unique_ptr<Lexer> lexer) : lexer_(std::move(lexer)) {}
 
   Token GetNextToken() override {
     Token token = lexer_->GetNextToken();
     EvaluateInPlace(token);
     return token;
   }
-  int GetLineNumber() override {
-    return lexer_->GetLineNumber();
-  }
+  int GetLineNumber() override { return lexer_->GetLineNumber(); }
 
  private:
   std::unique_ptr<Lexer> lexer_;
@@ -505,25 +408,26 @@ class Evaluator : public Lexer {
 
 class StreamLexer : public Lexer {
  public:
-  static constexpr char EofChar() {
-    return std::istream::traits_type::eof();
-  }
-  static char IsEofChar(char c) {
-    return c == EofChar();
-  }
-  static char IsNewlineChar(char c) {
-    return c == '\r' || c == '\n';
-  }
+  static constexpr char EofChar() { return std::istream::traits_type::eof(); }
+  static char IsEofChar(char c) { return c == EofChar(); }
+  static char IsNewlineChar(char c) { return c == '\r' || c == '\n'; }
 
  public:
-  explicit StreamLexer(std::istream& is) : is_(is), lineno_(1) {
-  }
+  explicit StreamLexer(std::istream& is) : is_(is), lineno_(1) {}
 
   Token GetNextToken() override {
     SkipSpaces();
     switch (Peek()) {
-      case '0': case '1': case '2': case '3': case '4':
-      case '5': case '6': case '7': case '8': case '9':
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
         return GetNumberToken();
       case '\"':
         return GetTextToken();
@@ -537,14 +441,10 @@ class StreamLexer : public Lexer {
         return GetCommentToken();
     }
   }
-  int GetLineNumber() override {
-    return lineno_;
-  }
+  int GetLineNumber() override { return lineno_; }
 
  private:
-  char Peek() {
-    return is_.peek();
-  }
+  char Peek() { return is_.peek(); }
   char GetChar() {
     char c = is_.get();
     if (c == '\n') {
@@ -571,8 +471,8 @@ class StreamLexer : public Lexer {
     }
     // Check whether it is "free-standing" or not.
     if (!isspace(Peek()) && !IsEofChar(Peek())) {
-      const std::string message = "Character '" + std::string(1u, Peek()) + "'"
-                                  " following number " + token.value;
+      const std::string message =
+          "Character '" + std::string(1u, Peek()) + "' following number " + token.value;
       throw LexicalError(message, lineno_);
     }
     return token;
@@ -598,8 +498,8 @@ class StreamLexer : public Lexer {
     }
     // Check whether it is "free-standing" or not.
     if (!isspace(Peek()) && !IsEofChar(Peek())) {
-      const std::string message = "Character '" + std::string(1u, Peek()) + "'"
-                                  " following text " + token.value;
+      const std::string message =
+          "Character '" + std::string(1u, Peek()) + "' following text " + token.value;
       throw LexicalError(message, lineno_);
     }
     return token;
@@ -620,8 +520,8 @@ class StreamLexer : public Lexer {
     }
     // Check whether it is "free-standing" or not.
     if (!isspace(Peek()) && !IsEofChar(Peek())) {
-      const std::string message = "Character '" + std::string(1u, Peek()) + "'"
-                                  " following flag " + token.value;
+      const std::string message =
+          "Character '" + std::string(1u, Peek()) + "' following flag " + token.value;
       throw LexicalError(message, lineno_);
     }
     return token;
@@ -652,37 +552,28 @@ inline std::unique_ptr<Lexer> CreateDefaultLexer(std::istream& is) {
 
 class Parser {
  private:
-  static bool Expect(const Token& token, TokenType type) {
-    return token.type == type;
-  }
+  static bool Expect(const Token& token, TokenType type) { return token.type == type; }
   static bool Expect(const Token& token, TokenType type, const std::string& value) {
     return token.type == type && token.value == value;
   }
 
  public:
-  explicit Parser(std::istream& is)
-      : lexer_(CreateDefaultLexer(is)) {
-  }
-  explicit Parser(std::unique_ptr<Lexer> lexer)
-      : lexer_(std::move(lexer)) {
-  }
+  explicit Parser(std::istream& is) : lexer_(CreateDefaultLexer(is)) {}
+  explicit Parser(std::unique_ptr<Lexer> lexer) : lexer_(std::move(lexer)) {}
 
   TextGrid Parse() {
     ParseHeader();
     return ParseTextGrid();
   }
-  void ResetLexer(std::unique_ptr<Lexer> new_lexer) {
-    lexer_ = std::move(new_lexer);
-  }
+  void ResetLexer(std::unique_ptr<Lexer> new_lexer) { lexer_ = std::move(new_lexer); }
 
  private:
   void ParseHeaderFileType() {
     static const std::string kFileType = "ooTextFile";
     Token token = lexer_->GetNextTokenExceptComment();
     if (!Expect(token, TokenType::TEXT_LITERAL, kFileType)) {
-      throw SyntaxError("Invalid TextGrid Header. "
-                        "File type must be \"" + kFileType +
-                        "\", but it's \"" + token.value + "\"",
+      throw SyntaxError("Invalid TextGrid Header. File type must be \"" + kFileType +
+                            "\", but it's \"" + token.value + "\"",
                         lexer_->GetLineNumber());
     }
   }
@@ -690,9 +581,8 @@ class Parser {
     static const std::string kObjectClass = "TextGrid";
     Token token = lexer_->GetNextTokenExceptComment();
     if (!Expect(token, TokenType::TEXT_LITERAL, kObjectClass)) {
-      throw SyntaxError("Invalid TextGrid Header. "
-                        "Object class must be \"" + kObjectClass +
-                        "\", but it's \"" + token.value + "\"",
+      throw SyntaxError("Invalid TextGrid Header. Object class must be \"" + kObjectClass +
+                            "\", but it's \"" + token.value + "\"",
                         lexer_->GetLineNumber());
     }
   }
@@ -704,8 +594,7 @@ class Parser {
   Number ParseNumber() {
     Token token = lexer_->GetNextTokenExceptComment();
     if (!Expect(token, TokenType::NUMBER_LITERAL)) {
-      throw SyntaxError("Found a " + ToString(token.type) +
-                        " while looking for a real number",
+      throw SyntaxError("Found a " + ToString(token.type) + " while looking for a real number",
                         lexer_->GetLineNumber());
     }
     return atof(token.value.c_str());
@@ -713,8 +602,7 @@ class Parser {
   std::string ParseText() {
     Token token = lexer_->GetNextTokenExceptComment();
     if (!Expect(token, TokenType::TEXT_LITERAL)) {
-      throw SyntaxError("Found a " + ToString(token.type) +
-                        " while looking for a text",
+      throw SyntaxError("Found a " + ToString(token.type) + " while looking for a text",
                         lexer_->GetLineNumber());
     }
     return token.value;
@@ -722,8 +610,7 @@ class Parser {
   std::string ParseFlag() {
     Token token = lexer_->GetNextTokenExceptComment();
     if (!Expect(token, TokenType::FLAG_LITERAL)) {
-      throw SyntaxError("Found a " + ToString(token.type) +
-                        " while looking for a flag",
+      throw SyntaxError("Found a " + ToString(token.type) + " while looking for a flag",
                         lexer_->GetLineNumber());
     }
     return token.value;
@@ -808,8 +695,7 @@ class Parser {
 
 class ShortWriter : public TextGridVisitor {
  public:
-  explicit ShortWriter(std::ostream& os) : os_(os) {
-  }
+  explicit ShortWriter(std::ostream& os) : os_(os) {}
   ~ShortWriter() noexcept override = default;
 
   void Visit(const TextGrid& text_grid) override {
@@ -851,12 +737,8 @@ class ShortWriter : public TextGridVisitor {
   void WriteAttribute(const std::string& name, const std::string& value) {
     os_ << name << " = " << EscapeText(value) << std::endl;
   }
-  void WriteNumber(const Number& value) {
-    os_ << value << std::endl;
-  }
-  void WriteText(const std::string& value) {
-    os_ << EscapeText(value) << std::endl;
-  }
+  void WriteNumber(const Number& value) { os_ << value << std::endl; }
+  void WriteText(const std::string& value) { os_ << EscapeText(value) << std::endl; }
 
  private:
   std::ostream& os_;
@@ -865,13 +747,10 @@ class ShortWriter : public TextGridVisitor {
 class Writer : public TextGridVisitor {
  public:
   explicit Writer(std::ostream& os)
-      : os_(os), tier_index_(0u), interval_index_(0u), point_index_(0u) {
-  }
+      : os_(os), tier_index_(0u), interval_index_(0u), point_index_(0u) {}
   ~Writer() noexcept override = default;
 
-  void Visit(const TextGrid& text_grid) override {
-    WriteTextGrid(text_grid);
-  }
+  void Visit(const TextGrid& text_grid) override { WriteTextGrid(text_grid); }
 
   void Visit(const IntervalTier& interval_tier) override {
     WriteIntervalTier(interval_tier);
@@ -900,15 +779,14 @@ class Writer : public TextGridVisitor {
   }
   void WriteIntervalHeader() {
     static const std::string kIntervalHeaderIndent(8, ' ');
-    os_ << kIntervalHeaderIndent << "intervals [" << (interval_index_+1) << "]:" << std::endl;
+    os_ << kIntervalHeaderIndent << "intervals [" << (interval_index_ + 1) << "]:" << std::endl;
   }
   void WritePointHeader() {
     static const std::string kPointHeaderIndent(8, ' ');
-    os_ << kPointHeaderIndent << "points [" << (point_index_+1) << "]:" << std::endl;
+    os_ << kPointHeaderIndent << "points [" << (point_index_ + 1) << "]:" << std::endl;
   }
 
-  void WriteAttribute(const std::string& name, const Number& value,
-                      const std::string& indent) {
+  void WriteAttribute(const std::string& name, const Number& value, const std::string& indent) {
     os_ << indent << name << " = " << value << std::endl;
   }
   void WriteAttribute(const std::string& name, const std::string& value,
@@ -916,22 +794,22 @@ class Writer : public TextGridVisitor {
     os_ << indent << name << " = " << EscapeText(value) << std::endl;
   }
 
-  template<typename T>
+  template <typename T>
   void WriteTextGridAttribute(const std::string& name, const T& value) {
     static const std::string kTextGridIndent(0, ' ');
     WriteAttribute(name, value, kTextGridIndent);
   }
-  template<typename T>
+  template <typename T>
   void WriteTierAttribute(const std::string& name, const T& value) {
     static const std::string kTierIndent(8, ' ');
     WriteAttribute(name, value, kTierIndent);
   }
-  template<typename T>
+  template <typename T>
   void WriteIntervalAttribute(const std::string& name, const T& value) {
     static const std::string kIntervalIndent(12, ' ');
     WriteAttribute(name, value, kIntervalIndent);
   }
-  template<typename T>
+  template <typename T>
   void WritePointAttribute(const std::string& name, const T& value) {
     static const std::string kPointIndent(12, ' ');
     WriteAttribute(name, value, kPointIndent);
