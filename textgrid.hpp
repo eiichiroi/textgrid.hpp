@@ -85,7 +85,7 @@ class TextGridVisitor {
   virtual void Visit(const Point& point) = 0;
 };
 
-typedef float Number;
+typedef double Number;
 
 struct Point {
   Point() = default;
