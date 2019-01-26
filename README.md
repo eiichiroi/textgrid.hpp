@@ -1,5 +1,7 @@
 # textgrid.hpp - a C++ TextGrid parser / writer
 
+[![CircleCI](https://circleci.com/gh/eiichiroi/textgrid.hpp.svg?style=svg)](https://circleci.com/gh/eiichiroi/textgrid.hpp)
+
 ## Introduction
 
 `textgrid.hpp` is a C++ library for interacting with Praat TextGrid files.
