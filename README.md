@@ -1,6 +1,7 @@
 # textgrid.hpp - a C++ TextGrid parser / writer
 
 [![CircleCI](https://circleci.com/gh/eiichiroi/textgrid.hpp.svg?style=svg)](https://circleci.com/gh/eiichiroi/textgrid.hpp)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 ## Introduction
 
