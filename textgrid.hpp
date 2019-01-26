@@ -154,14 +154,8 @@ class PointTier : public Tier {
   const std::vector<Point>& GetAllPoints() const& { return points_; }
   std::vector<Point> GetAllPoints() && { return std::move(points_); }
 
-  void Accept(TextGridVisitor& visitor) const override { AcceptImpl(visitor); }
-  void Accept(TextGridVisitor&& visitor) const override { AcceptImpl(visitor); }
-
- private:
-  template <typename Visitor>
-  void AcceptImpl(Visitor&& visitor) const {
-    visitor.Visit(*this);
-  }
+  void Accept(TextGridVisitor& visitor) const override { visitor.Visit(*this); }
+  void Accept(TextGridVisitor&& visitor) const override { visitor.Visit(*this); }
 
  private:
   std::vector<Point> points_;
@@ -191,14 +185,8 @@ class IntervalTier : public Tier {
   const std::vector<Interval>& GetAllIntervals() const& { return intervals_; }
   std::vector<Interval> GetAllIntervals() && { return intervals_; }
 
-  void Accept(TextGridVisitor& visitor) const override { AcceptImpl(visitor); }
-  void Accept(TextGridVisitor&& visitor) const override { AcceptImpl(visitor); }
-
- private:
-  template <typename Visitor>
-  void AcceptImpl(Visitor&& visitor) const {
-    visitor.Visit(*this);
-  }
+  void Accept(TextGridVisitor& visitor) const override { visitor.Visit(*this); }
+  void Accept(TextGridVisitor&& visitor) const override { visitor.Visit(*this); }
 
  private:
   std::vector<Interval> intervals_;
@@ -243,14 +231,8 @@ class TextGrid {
   const std::vector<std::shared_ptr<Tier>>& GetAllTiers() const& { return tiers_; }
   std::vector<std::shared_ptr<Tier>> GetAllTiers() && { return std::move(tiers_); }
 
-  void Accept(TextGridVisitor& visitor) const { AcceptImpl(visitor); }
-  void Accept(TextGridVisitor&& visitor) const { AcceptImpl(visitor); }
-
- private:
-  template <typename Visitor>
-  void AcceptImpl(Visitor&& visitor) const {
-    visitor.Visit(*this);
-  }
+  void Accept(TextGridVisitor& visitor) const { visitor.Visit(*this); }
+  void Accept(TextGridVisitor&& visitor) const { visitor.Visit(*this); }
 
  private:
   Number min_time_;
