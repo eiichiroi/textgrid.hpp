@@ -260,6 +260,8 @@ inline std::string ToString(TokenType type) {
       return "flag";
     case TokenType::COMMENT:
       return "comment";
+    default:
+      return "unknown";
   }
 }
 

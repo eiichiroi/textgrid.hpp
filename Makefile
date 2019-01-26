@@ -46,16 +46,16 @@ tests/gtest/libgtest.a: tests/gtest/gtest-all.o
 	$(AR) $(ARFLAGS) $@ $^
 
 tests/gtest/gtest-all.o: tests/gtest/gtest-all.cc
-	$(CXX) -I$(TESTDIR) $(CXXFLAGS) -c -o $@ $^
+	$(CXX) -I$(TESTDIR) $(CXXFLAGS) -pthread -c -o $@ $^
 
 tests/gtest/libgtest_main.a: tests/gtest/gtest-all.o tests/gtest/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
 tests/gtest/gtest_main.o: tests/gtest/gtest_main.cc
-	$(CXX) -I$(TESTDIR) $(CXXFLAGS) -c -o $@ $^
+	$(CXX) -I$(TESTDIR) $(CXXFLAGS) -pthread -c -o $@ $^
 
 tests/textgrid_test: tests/textgrid_test.cpp
-	$(CXX) -I$(TESTDIR) $(CXXFLAGS) -o $@ $^ tests/gtest/libgtest_main.a
+	$(CXX) -I$(TESTDIR) $(CXXFLAGS) -pthread -o $@ $^ tests/gtest/libgtest_main.a
 
 check-tests: $(TEST_TARGETS)
 	for test in $(TEST_TARGETS); do $$test; done
