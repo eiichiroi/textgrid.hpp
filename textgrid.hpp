@@ -91,6 +91,9 @@ struct Point {
   Point() = default;
   explicit Point(Number time, const std::string& text = "") : time(time), text(text) {}
 
+  void Accept(TextGridVisitor& visitor) const { visitor.Visit(*this); }
+  void Accept(TextGridVisitor&& visitor) const { visitor.Visit(*this); }
+
   Number time;
   std::string text;
 };
@@ -99,6 +102,9 @@ struct Interval {
   Interval() = default;
   Interval(Number min_time, Number max_time, const std::string& text = "")
       : min_time(min_time), max_time(max_time), text(text) {}
+
+  void Accept(TextGridVisitor& visitor) const { visitor.Visit(*this); }
+  void Accept(TextGridVisitor&& visitor) const { visitor.Visit(*this); }
 
   Number min_time;
   Number max_time;
@@ -155,9 +161,6 @@ class PointTier : public Tier {
   template <typename Visitor>
   void AcceptImpl(Visitor&& visitor) const {
     visitor.Visit(*this);
-    for (const auto& point : GetAllPoints()) {
-      visitor.Visit(point);
-    }
   }
 
  private:
@@ -195,9 +198,6 @@ class IntervalTier : public Tier {
   template <typename Visitor>
   void AcceptImpl(Visitor&& visitor) const {
     visitor.Visit(*this);
-    for (const auto& interval : GetAllIntervals()) {
-      visitor.Visit(interval);
-    }
   }
 
  private:
@@ -250,9 +250,6 @@ class TextGrid {
   template <typename Visitor>
   void AcceptImpl(Visitor&& visitor) const {
     visitor.Visit(*this);
-    for (const auto& tier : GetAllTiers()) {
-      tier->Accept(visitor);
-    }
   }
 
  private:
@@ -693,12 +690,76 @@ class Parser {
   std::unique_ptr<Lexer> lexer_;
 };
 
-class ShortWriter : public TextGridVisitor {
+class TextGridInternalVisitor : public TextGridVisitor {
  public:
-  explicit ShortWriter(std::ostream& os) : os_(os) {}
+  enum class TraversalOrder {
+    PreOrder,
+    PostOrder,
+  };
+
+ public:
+  explicit TextGridInternalVisitor(TraversalOrder order) : order_(order) {}
+  ~TextGridInternalVisitor() noexcept override = default;
+
+  bool PreOrder() const noexcept { return order_ == TraversalOrder::PreOrder; }
+  bool PostOrder() const noexcept { return order_ == TraversalOrder::PostOrder; }
+
+  void Visit(const TextGrid& text_grid) final {
+    if (PreOrder()) {
+      VisitInternally(text_grid);
+    }
+    for (const auto& tier : text_grid.GetAllTiers()) {
+      tier->Accept(*this);
+    }
+    if (PostOrder()) {
+      VisitInternally(text_grid);
+    }
+  }
+
+  void Visit(const IntervalTier& interval_tier) final {
+    if (PreOrder()) {
+      VisitInternally(interval_tier);
+    }
+    for (const auto& interval : interval_tier.GetAllIntervals()) {
+      interval.Accept(*this);
+    }
+    if (PostOrder()) {
+      VisitInternally(interval_tier);
+    }
+  }
+  void Visit(const Interval& interval) final { VisitInternally(interval); }
+
+  void Visit(const PointTier& point_tier) final {
+    if (PreOrder()) {
+      VisitInternally(point_tier);
+    }
+    for (const auto& point : point_tier.GetAllPoints()) {
+      point.Accept(*this);
+    }
+    if (PostOrder()) {
+      VisitInternally(point_tier);
+    }
+  }
+  void Visit(const Point& point) final { VisitInternally(point); }
+
+ protected:
+  virtual void VisitInternally(const TextGrid& text_grid) = 0;
+  virtual void VisitInternally(const IntervalTier& interval_tier) = 0;
+  virtual void VisitInternally(const Interval& interval) = 0;
+  virtual void VisitInternally(const PointTier& point_tier) = 0;
+  virtual void VisitInternally(const Point& point) = 0;
+
+ private:
+  TraversalOrder order_;
+};
+
+class ShortWriter : public TextGridInternalVisitor {
+ public:
+  explicit ShortWriter(std::ostream& os)
+      : TextGridInternalVisitor(TraversalOrder::PreOrder), os_(os) {}
   ~ShortWriter() noexcept override = default;
 
-  void Visit(const TextGrid& text_grid) override {
+  void VisitInternally(const TextGrid& text_grid) override {
     WriteAttribute("File type", "ooTextFile");
     WriteAttribute("Object class", "TextGrid");
     os_ << std::endl;
@@ -708,27 +769,27 @@ class ShortWriter : public TextGridVisitor {
     WriteNumber(text_grid.GetNumberOfTiers());
   }
 
-  void Visit(const IntervalTier& interval_tier) override {
+  void VisitInternally(const IntervalTier& interval_tier) override {
     WriteText("IntervalTier");
     WriteText(interval_tier.GetName());
     WriteNumber(interval_tier.GetMinTime());
     WriteNumber(interval_tier.GetMaxTime());
     WriteNumber(interval_tier.GetNumberOfIntervals());
   }
-  void Visit(const Interval& interval) override {
+  void VisitInternally(const Interval& interval) override {
     WriteNumber(interval.min_time);
     WriteNumber(interval.max_time);
     WriteText(interval.text);
   }
 
-  void Visit(const PointTier& point_tier) override {
+  void VisitInternally(const PointTier& point_tier) override {
     WriteText("TextTier");
     WriteText(point_tier.GetName());
     WriteNumber(point_tier.GetMinTime());
     WriteNumber(point_tier.GetMaxTime());
     WriteNumber(point_tier.GetNumberOfPoints());
   }
-  void Visit(const Point& point) override {
+  void VisitInternally(const Point& point) override {
     WriteNumber(point.time);
     WriteText(point.text);
   }
@@ -744,30 +805,34 @@ class ShortWriter : public TextGridVisitor {
   std::ostream& os_;
 };
 
-class Writer : public TextGridVisitor {
+class Writer : public TextGridInternalVisitor {
  public:
   explicit Writer(std::ostream& os)
-      : os_(os), tier_index_(0u), interval_index_(0u), point_index_(0u) {}
+      : TextGridInternalVisitor(TraversalOrder::PreOrder),
+        os_(os),
+        tier_index_(0u),
+        interval_index_(0u),
+        point_index_(0u) {}
   ~Writer() noexcept override = default;
 
-  void Visit(const TextGrid& text_grid) override { WriteTextGrid(text_grid); }
+  void VisitInternally(const TextGrid& text_grid) override { WriteTextGrid(text_grid); }
 
-  void Visit(const IntervalTier& interval_tier) override {
+  void VisitInternally(const IntervalTier& interval_tier) override {
     WriteIntervalTier(interval_tier);
     tier_index_++;
     interval_index_ = 0u;
   }
-  void Visit(const Interval& interval) override {
+  void VisitInternally(const Interval& interval) override {
     WriteInterval(interval);
     interval_index_++;
   }
 
-  void Visit(const PointTier& point_tier) override {
+  void VisitInternally(const PointTier& point_tier) override {
     WritePointTier(point_tier);
     tier_index_++;
     point_index_ = 0u;
   }
-  void Visit(const Point& point) override {
+  void VisitInternally(const Point& point) override {
     WritePoint(point);
     point_index_++;
   }
