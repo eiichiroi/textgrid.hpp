@@ -145,7 +145,7 @@ class PointTier : public Tier {
   ~PointTier() noexcept override = default;
 
   void AppendPoint(const Point& point) { points_.push_back(point); }
-  void AppendPoint(Point&& point) { points_.push_back(point); }
+  void AppendPoint(Point&& point) { points_.push_back(std::move(point)); }
 
   size_t GetNumberOfPoints() const noexcept { return points_.size(); }
   size_t GetNumberOfAnnotations() const noexcept override { return GetNumberOfPoints(); }
@@ -176,7 +176,7 @@ class IntervalTier : public Tier {
   ~IntervalTier() noexcept override = default;
 
   void AppendInterval(const Interval& interval) { intervals_.push_back(interval); }
-  void AppendInterval(Interval&& interval) { intervals_.push_back(interval); }
+  void AppendInterval(Interval&& interval) { intervals_.push_back(std::move(interval)); }
 
   size_t GetNumberOfIntervals() const noexcept { return intervals_.size(); }
   size_t GetNumberOfAnnotations() const noexcept override { return GetNumberOfIntervals(); }
@@ -202,14 +202,16 @@ class TextGrid {
   }
 
   void AppendTier(const std::shared_ptr<Tier>& tier) { tiers_.push_back(tier); }
-  void AppendTier(std::shared_ptr<Tier>&& tier) { tiers_.push_back(tier); }
+  void AppendTier(std::shared_ptr<Tier>&& tier) { tiers_.push_back(std::move(tier)); }
   template <typename TierType>
   void AppendTier(const std::string& name = "") {
     AppendTier(std::make_shared<TierType>(name, GetMinTime(), GetMaxTime()));
   }
 
   Number GetMinTime() const noexcept { return min_time_; }
+  void SetMinTime(Number min_time) { min_time_ = min_time; }
   Number GetMaxTime() const noexcept { return max_time_; }
+  void SetMaxTime(Number max_time) { max_time_ = max_time; }
   size_t GetNumberOfTiers() const noexcept { return tiers_.size(); }
   std::shared_ptr<Tier> GetTier(size_t index) const { return tiers_[index]; }
   template <typename TierType>
