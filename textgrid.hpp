@@ -119,8 +119,11 @@ class Tier {
 
   const std::string& GetName() const& { return name_; }
   std::string GetName() && { return name_; }
+  void SetName(const std::string& name) { name_ = name; }
   Number GetMinTime() const noexcept { return min_time_; }
+  void SetMinTime(Number min_time) { min_time_ = min_time; }
   Number GetMaxTime() const noexcept { return max_time_; }
+  void SetMaxTime(Number max_time) { max_time_ = max_time; }
 
   virtual size_t GetNumberOfAnnotations() const noexcept = 0;
 
