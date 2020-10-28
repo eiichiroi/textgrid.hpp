@@ -3,9 +3,11 @@ CXXFLAGS=-g -O2 -Wall -std=c++11
 
 SOURCES= \
   textgrid.hpp \
+  examples/textgrid2csv.cpp \
   examples/textgrid_merge.cpp \
   examples/textgrid_print.cpp
 TARGETS= \
+  examples/textgrid2csv \
   examples/textgrid_merge \
   examples/textgrid_print
 
