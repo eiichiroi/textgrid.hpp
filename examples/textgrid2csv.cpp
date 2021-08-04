@@ -1,3 +1,4 @@
+// Copyright (c) 2020, Eiichiro Iwata. All rights reserved.
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
